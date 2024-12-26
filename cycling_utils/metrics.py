@@ -60,10 +60,10 @@ class MetricsTracker:
             self.local[m] += v
         return self
 
-    def reduce(self):
+    def reduce(self, device="cuda"):
         names, local = zip(*self.local.items())
         local = torch.tensor(
-            local, dtype=torch.float32, requires_grad=False, device="cuda"
+            local, dtype=torch.float32, requires_grad=False, device=device
         )
         dist.all_reduce(local, op=dist.ReduceOp.SUM)
         self.local = defaultdict(float, zip(names, local.tolist()))
